@@ -161,12 +161,6 @@ const bodyContent: ReactNode[] = [
 ];
 
 export default function ProsesPengembanganPage() {
-  const today = new Date().toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-
   return (
     <div className="flex min-h-screen flex-col bg-white text-[#111111]">
       <SiteHeader />

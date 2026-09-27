@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image, { type StaticImageData } from "next/image";
 
 import defaultTeamImage from "../../assets/web/images/mobile-ui-artikel.webp";
 import { InlineImage } from "@/components/page-chrome";
@@ -6,7 +6,7 @@ import { InlineImage } from "@/components/page-chrome";
 export type TeamCardProps = {
   name: string;
   role: string;
-  imageUrl?: any;
+  imageUrl?: string | StaticImageData;
 };
 
 export function TeamCard({ name, role, imageUrl }: TeamCardProps) {
