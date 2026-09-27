@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image, { type StaticImageData } from "next/image";
 
 import defaultArticleImage from "../../assets/web/images/mobile-ui-artikel.webp";
 import { formatArticleDate, formatReadTime } from "@/lib/format";
@@ -9,23 +9,19 @@ export type ArticleCardProps = {
   excerpt: string;
   href: string;
   highlighted?: boolean;
-  imageUrl?: any;
+  imageUrl?: string | StaticImageData;
   date?: string;
   readingTime?: number;
 };
 
 export function ArticleCard({
   title,
-  excerpt,
   href,
   highlighted = false,
   imageUrl,
   date,
   readingTime,
 }: ArticleCardProps) {
-  // const cardClassName = highlighted
-  //   ? "bg-[#05059e] text-[#eeeeee]"
-  //   : "bg-[#e5e8fa] text-[#111111] ";
   const descriptionClassName = highlighted ? "text-[#eeeeee]" : "text-[#111111]";
 
   return (

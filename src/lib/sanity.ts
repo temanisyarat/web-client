@@ -1,4 +1,6 @@
-type SanityArticle = {
+import { articles as staticArticles, authors as staticAuthors } from "@/lib/static-data";
+
+export type StaticArticle = {
   _id: string;
   article: string;
   slug?: string;
@@ -8,10 +10,19 @@ type SanityArticle = {
   authorName?: string;
   authorBio?: string;
   categoryName?: string;
-  content?: SanityBlock[];
+  content?: Array<{
+    _key: string;
+    _type: string;
+    style?: string;
+    children?: Array<{
+      _key: string;
+      _type: string;
+      text?: string;
+    }>;
+  }>;
 };
 
-type SanityAuthor = {
+export type SanityAuthor = {
   _id: string;
   name: string;
   slug?: string;
@@ -19,115 +30,64 @@ type SanityAuthor = {
   imageUrl?: string;
 };
 
-type SanityBlock = {
-  _key: string;
-  _type: string;
-  style?: string;
-  children?: Array<{
-    _key: string;
-    _type: string;
-    text?: string;
-  }>;
-};
-
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? "mxxqb8kk";
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production";
-const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION ?? "2025-06-04";
-
-async function fetchSanity<T>(query: string, fallback: T): Promise<T> {
-  const response = await fetch(
-    `https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}?query=${encodeURIComponent(query)}`,
-    {
-      next: {
-        revalidate: 300,
-      },
-    },
-  );
-
-  if (!response.ok) {
-    return fallback;
-  }
-
-  const payload = (await response.json()) as { result?: T };
-
-  return payload.result ?? fallback;
+function toSanityArticle(a: {
+  slug: string;
+  title: string;
+  categoryName: string;
+  readingTime: number;
+  authorName: string;
+  date?: string;
+  imageKey?: string;
+  paragraphs: string[];
+}): StaticArticle {
+  return {
+    _id: a.slug,
+    article: a.title,
+    slug: a.slug,
+    date: a.date,
+    readingTime: a.readingTime,
+    imageUrl: a.imageKey,
+    authorName: a.authorName,
+    categoryName: a.categoryName,
+    content: a.paragraphs.map((p, i) => ({
+      _key: `p${i}`,
+      _type: "block",
+      style: "normal",
+      children: [
+        {
+          _key: `c${i}`,
+          _type: "span",
+          text: p,
+        },
+      ],
+    })),
+  };
 }
 
-export async function getArticles(page = 1, limit = 6): Promise<SanityArticle[]> {
+export async function getTotalArticles(): Promise<number> {
+  return staticArticles.length;
+}
+
+export async function getArticles(page = 1, limit = 6): Promise<StaticArticle[]> {
   const safeLimit = Math.max(1, Math.min(Math.floor(limit), 12));
   const safePage = Math.max(1, Math.floor(page));
   const offset = (safePage - 1) * safeLimit;
 
-  const query = `*[_type == "article"] | order(date desc)[${offset}...${offset + safeLimit}] {
-    _id,
-    article,
-    "slug": slug.current,
-    date,
-    readingTime,
-    "imageUrl": image.asset->url,
-    "authorName": author->name,
-    "authorBio": author->bio,
-    "categoryName": category->category,
-    content[]{
-      _key,
-      _type,
-      style,
-      children[]{
-        _key,
-        _type,
-        text
-      }
-    }
-  }`;
-
-  return fetchSanity<SanityArticle[]>(query, []);
+  return staticArticles.slice(offset, offset + safeLimit).map(toSanityArticle);
 }
 
-export async function getTotalArticles(): Promise<number> {
-  const query = `count(*[_type == "article"])`;
-  return fetchSanity<number>(query, 0);
-}
-
-export async function getArticleBySlug(slug: string): Promise<SanityArticle | null> {
-  const safeSlug = slug.replace(/"/g, '\\"');
-
-  const query = `*[_type == "article" && slug.current == "${safeSlug}"] | order(date desc)[0] {
-    _id,
-    article,
-    "slug": slug.current,
-    date,
-    readingTime,
-    "imageUrl": image.asset->url,
-    "authorName": author->name,
-    "authorBio": author->bio,
-    "categoryName": category->category,
-    content[]{
-      _key,
-      _type,
-      style,
-      children[]{
-        _key,
-        _type,
-        text
-      }
-    }
-  }`;
-
-  return fetchSanity<SanityArticle | null>(query, null);
+export async function getArticleBySlug(slug: string): Promise<StaticArticle | null> {
+  const article = staticArticles.find((a) => a.slug === slug);
+  return article ? toSanityArticle(article) : null;
 }
 
 export async function getAuthors(limit = 9): Promise<SanityAuthor[]> {
-  const safeLimit = Math.max(1, Math.min(Math.floor(limit), 24));
-
-  const query = `*[_type == "author"] | order(name asc)[0...${safeLimit}] {
-    _id,
-    name,
-    "slug": slug.current,
-    bio,
-    "imageUrl": image.asset->url
-  }`;
-
-  return fetchSanity<SanityAuthor[]>(query, []);
+  return staticAuthors.slice(0, Math.max(1, Math.min(Math.floor(limit), 24))).map((a) => ({
+    _id: a.slug || a.name,
+    name: a.name,
+    slug: a.slug,
+    bio: a.bio,
+  }));
 }
 
-export type { SanityArticle, SanityAuthor };
+export type SanityArticle = StaticArticle;

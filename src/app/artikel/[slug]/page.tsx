@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 
 import detailIllustration from "../../../../assets/illustrations/illustration-medium.svg";
 import cheersImg from "../../../../assets/placeholders/cheers.jpg";
-import gerkatinPlaceholderImg from "../../../../assets/placeholders/gerkatin-placeholder.jpg";
 import {
   ActionButton,
   SiteFooter,
@@ -14,8 +13,7 @@ import {
 import { blocksToParagraphs, excerptFromArticle } from "@/lib/articles";
 import { formatArticleDate, formatReadTime } from "@/lib/format";
 import { getArticleBySlug } from "@/lib/sanity";
-
-export const dynamic = "force-dynamic";
+import { articleImages, articles } from "@/lib/static-data";
 
 const fallbackGerkatinParagraphs = [
   "Gerkatin Surakarta (Gerakan Kesejahteraan Tunarungu Indonesia Cabang Surakarta) merupakan sebuah organisasi sosial yang menjadi wadah utama bagi komunitas Tuli di wilayah Surakarta dan sekitarnya. Organisasi ini didirikan dengan tujuan untuk memperjuangkan pemenuhan hak, mendorong kemandirian, serta meningkatkan kesejahteraan para anggotanya di berbagai lini kehidupan masyarakat. Melalui pergerakan ini, Gerkatin Surakarta berusaha menghapus stigma negatif dan memastikan bahwa teman Tuli mendapatkan kesempatan yang sama dalam aspek sosial, ekonomi, hingga hukum.",
@@ -40,23 +38,27 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+export function generateStaticParams() {
+  return articles.map((a) => ({ slug: a.slug }));
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
   const isGerkatin = slug === "tentang-gerkatin";
   const title = article?.article ?? (isGerkatin ? "Tentang GERKATIN" : "Artikel");
 
-  let description: string;
+  let metaDescription: string;
   if (article) {
-    description = excerptFromArticle(article, fallbackExcerpt);
+    metaDescription = excerptFromArticle(article, fallbackExcerpt);
   } else if (isGerkatin && fallbackGerkatinParagraphs.length > 0) {
     const firstPara = fallbackGerkatinParagraphs[0];
-    description = firstPara.length > 120 ? `${firstPara.slice(0, 117).trimEnd()}...` : firstPara;
+    metaDescription = firstPara.length > 120 ? `${firstPara.slice(0, 117).trimEnd()}...` : firstPara;
   } else {
-    description = fallbackExcerpt;
+    metaDescription = fallbackExcerpt;
   }
 
-  return { title, description };
+  return { title, description: metaDescription };
 }
 
 export default async function ArticleInstancePage({ params }: PageProps) {
@@ -69,13 +71,15 @@ export default async function ArticleInstancePage({ params }: PageProps) {
 
   const title = article?.article ?? "Tentang GERKATIN";
   const subtitle = article?.categoryName ?? "Artikel";
-  const description = article ? excerptFromArticle(article, fallbackExcerpt) : fallbackExcerpt;
   const isGerkatin = slug === "tentang-gerkatin";
   const bodyParagraphs = blocksToParagraphs(article?.content ?? []);
   const contentParagraphs = bodyParagraphs.length > 0
     ? bodyParagraphs
     : (isGerkatin ? fallbackGerkatinParagraphs : fallbackParagraphs);
-  const heroImageUrl = isGerkatin ? cheersImg : article?.imageUrl;
+  const imageKey = article?.imageUrl;
+  const heroImageUrl = isGerkatin
+    ? cheersImg
+    : (imageKey && articleImages[imageKey]) || undefined;
   const articleAuthor = isGerkatin ? "TemanIsyarat Team" : article?.authorName;
   const articleDate = isGerkatin ? "03 Mar 2026" : formatArticleDate(article?.date);
   const articleReadTime = isGerkatin
@@ -113,9 +117,6 @@ export default async function ArticleInstancePage({ params }: PageProps) {
               <h1 className="px-1 text-5xl font-bold leading-none tracking-tight text-[#111111]">
                 {title}
               </h1>
-              {/* <p className="px-2 text-xl leading-[1.43] text-[#7c7c7c]">
-                {description}
-              </p> */}
             </div>
             <div className="flex gap-2 px-1 flex-col align-top">
               <p className="font-bold text-[#0000cc] text-lg">{articleAuthor}</p>
@@ -127,8 +128,6 @@ export default async function ArticleInstancePage({ params }: PageProps) {
             </div>
           </header>
 
-          
-
           <div className="space-y-4">
             {contentParagraphs.slice(0, 3).map((paragraph, index) => (
               <p
@@ -138,20 +137,6 @@ export default async function ArticleInstancePage({ params }: PageProps) {
                 {paragraph}
               </p>
             ))}
-
-            {/* {isGerkatin ? (
-              <div className="relative h-[281px] w-full overflow-hidden rounded-[16px]">
-                <Image
-                  src={gerkatinPlaceholderImg}
-                  alt="Tentang GERKATIN"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1280px) 100vw, 680px"
-                />
-              </div>
-            ) : (
-              <div className="h-[281px] w-full rounded-[16px] bg-[#c6c6c6]" aria-hidden />
-            )} */}
 
             {contentParagraphs.slice(3).map((paragraph, index) => (
               <p
@@ -171,7 +156,6 @@ export default async function ArticleInstancePage({ params }: PageProps) {
         </div>
       </main>
 
-      {/* <ArticleDetailFooter /> */}
       <SiteFooter />
     </div>
   );
