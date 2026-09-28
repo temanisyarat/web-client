@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import Image from "next/image";
 
 import documentationCafe from "../../../assets/placeholders/documentation-cafe.jpeg";
 import documentationFatisda from "../../../assets/placeholders/documentation-fatisda.jpeg";
 import {
   ActionButton,
+  InlineImage,
   SiteFooter,
   SiteHeader,
 } from "@/components/page-chrome";
@@ -161,12 +161,6 @@ const bodyContent: ReactNode[] = [
 ];
 
 export default function ProsesPengembanganPage() {
-  const today = new Date().toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-
   return (
     <div className="flex min-h-screen flex-col bg-white text-[#111111]">
       <SiteHeader />
@@ -175,13 +169,10 @@ export default function ProsesPengembanganPage() {
         <article className="lg:space-y-12 space-y-6">
           {/* Hero */}
           <div className="relative h-[272px] overflow-hidden rounded-[32px] bg-[#0000cc]">
-            <Image
+            <InlineImage
               src={documentationCafe}
               alt="Dokumentasi pengembangan"
-              fill
-              className="object-cover"
-              sizes="(max-width: 1280px) 100vw, 680px"
-              priority
+              className="h-full w-full object-cover"
             />
           </div>
 
@@ -211,12 +202,10 @@ export default function ProsesPengembanganPage() {
 
             {/* Inline image */}
             <div className="relative h-[281px] w-full overflow-hidden rounded-[16px]">
-              <Image
+              <InlineImage
                 src={documentationFatisda}
                 alt="Proses pengembangan aplikasi"
-                fill
-                className="object-cover"
-                sizes="(max-width: 1280px) 100vw, 680px"
+                className="h-full w-full object-cover"
               />
             </div>
 

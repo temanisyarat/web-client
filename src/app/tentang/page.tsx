@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import type { StaticImageData } from "next/image";
 
 import { TeamCard } from "@/components/team-card";
 import { SectionTitle, SiteFooter, SiteHeader } from "@/components/page-chrome";
-import { getAuthors } from "@/lib/sanity";
+import { authors } from "@/lib/static-data";
 import img1 from "../../../assets/members/1.png";
 import img2 from "../../../assets/members/2.png";
 import img3 from "../../../assets/members/3.png";
@@ -14,7 +15,7 @@ import img8 from "../../../assets/members/8.png";
 import img9 from "../../../assets/members/9.png";
 import fotoPakHeri from "../../../assets/members/10.png";
 
-const fotoProfil: Record<string, any> = {
+const fotoProfil: Record<string, StaticImageData> = {
   "dunhill william putra": img1,
   "farras arkan wardana": img2,
   "muhammad febrian jamaludin": img3,
@@ -26,8 +27,6 @@ const fotoProfil: Record<string, any> = {
   "usrotun saidah": img9,
 };
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = {
   title: "Tentang Kami",
 };
@@ -35,27 +34,21 @@ export const metadata: Metadata = {
 type TeamMember = {
   name: string;
   role: string;
-  imageUrl?: any;
+  imageUrl?: string | StaticImageData;
 };
 
-const fallbackTeam: TeamMember[] = Array.from({ length: 9 }, () => ({
-  name: "Card Subtitle",
-  role: "Card Subtitle",
-}));
-
-export default async function AboutPage() {
-  const authors = await getAuthors(9);
-
+export default function AboutPage() {
   const teamMembers: TeamMember[] =
     authors.length > 0
       ? authors.map((author) => ({
           name: author.name,
-          role: author.bio || "Anggota Tim",
+          role: "Anggota Tim",
           imageUrl: fotoProfil[author.name.toLowerCase()] || img1,
         }))
-      : fallbackTeam.map((member, i) => ({
-          ...member,
-          imageUrl: Object.values(fotoProfil)[i] || img1,
+      : Array.from({ length: 9 }, () => ({
+          name: "Card Subtitle",
+          role: "Card Subtitle",
+          imageUrl: img1,
         }));
 
   return (
