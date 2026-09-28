@@ -1,4 +1,4 @@
-import type { StaticImageData } from "next/image";
+import Image, { type StaticImageData } from "next/image";
 
 import defaultTeamImage from "../../assets/web/images/mobile-ui-artikel.webp";
 import { InlineImage } from "@/components/page-chrome";
