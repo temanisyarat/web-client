@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import detailIllustration from "../../../../assets/illustrations/illustration-medium.svg";
@@ -95,13 +94,10 @@ export default async function ArticleInstancePage({ params }: PageProps) {
         <article className="lg:space-y-12 space-y-6">
           <div className="relative h-[272px] overflow-hidden rounded-[32px] bg-[#0000cc]">
               {heroImageUrl ? (
-                <Image
+                <InlineImage
                   src={heroImageUrl}
                   alt={title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1280px) 100vw, 680px"
-                  priority
+                  className="h-full w-full object-cover"
                 />
               ) : (
                 <InlineImage

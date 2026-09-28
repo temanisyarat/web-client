@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import desktopHero from "../../assets/web/images/desktop-final.png";
 import mobileHero from "../../assets/web/images/Beranda-final.png";
 import illustrationMedium from "../../assets/illustrations/illustration-medium.svg";
@@ -277,12 +275,10 @@ export default function Home() {
           <div className="mt-10 grid items-center gap-10 text-center lg:text-left lg:grid-cols-[305px_minmax(0,1fr)]">
             <div className="flex justify-center">
               <div className="relative h-[354px] w-full max-w-[305px] overflow-hidden rounded-[32px] bg-[#eaeaea]">
-                <Image
+                <InlineImage
                   src={cheersPlaceholder}
                   alt="Tentang GERKATIN"
-                  fill
-                  className="object-cover"
-                  sizes="305px"
+                  className="h-full w-full object-cover"
                 />
               </div>
             </div>

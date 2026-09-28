@@ -15,7 +15,11 @@ export function TeamCard({ name, role, imageUrl }: TeamCardProps) {
       <div className="flex flex-col gap-6">
         <div className="relative h-[231px] overflow-hidden rounded-[12px]">
           {imageUrl ? (
-            <Image src={imageUrl} alt={name} fill className="object-cover" sizes="272px" />
+            <InlineImage
+              src={imageUrl}
+              alt={name}
+              className="h-full w-full rounded-[12px] object-cover"
+            />
           ) : (
             <InlineImage
               src={defaultTeamImage}

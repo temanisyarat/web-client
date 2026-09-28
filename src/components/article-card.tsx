@@ -47,12 +47,10 @@ export function ArticleCard({
 
         <div className="relative h-[213px] bottom-0 overflow-hidden rounded-[24px]">
           {imageUrl ? (
-            <Image
+            <InlineImage
               src={imageUrl}
               alt={title}
-              fill
-              className="rounded-[24px] object-cover"
-              sizes="(max-width: 768px) 100vw, 358px"
+              className="h-full w-full rounded-[24px] object-cover"
             />
           ) : (
             <InlineImage
